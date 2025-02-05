@@ -45,4 +45,23 @@ public with sharing class ContactTriggerHandler {
             update updateCon;
         }
     }
+    public static void dm(List<Contact> conList){
+  Set<Id>accIds=new Set<Id>();
+  Map<Id,Integer>conCount=new Map<Id,Integer>();
+  for(Contact con:conList){
+   if(con.AccountId!=NULL){
+    accIds.add(con.AccountId);
+   }
+  }
+  List<Account> accList=[SELECT Id,Name,(SELECT Id FROM Contacts) FROM Account WHERE Id IN:accIds];
+  for(Account acc:accList){
+   conCount.put(acc.Id,acc.Contacts.size());
+  }
+  for(Contact con:conList){
+   Integer count=conCount.get(con.AccountId);
+   if(count != NULL && count >= 2){
+    con.addError('Please check your Account Have Already 2 contacts');
+   }
+  }
+ }
 }
